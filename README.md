@@ -2,6 +2,8 @@
 
 A Flutter application for managing tasks with integrated time tracking using a Kanban board interface.
 
+![GitHub Cards Preview](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/cover.png?raw=true)
+
 **Development Time:** 18 hours
 
 ## Features
@@ -15,9 +17,17 @@ A Flutter application for managing tasks with integrated time tracking using a K
 - **Multi-Language**: English, Arabic (RTL), and German support
 - **Search**: Real-time task search functionality
 
-## Screenshots & Videos
+## Screenshots 📸
 
-Add your screenshots to `screenshots/` folder and videos links here.
+### Light Mode 🌞
+Home Screen | Task Details | Statistics | History | Dark Mode | Splash Screen | Language Selection
+--- | --- | --- | --- | --- | --- | ---
+![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/home_screen_light.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/task_details.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/statistics.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/history.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/dark_mode.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/splash_screen.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/language_selection.png?raw=true)
+
+### Dark Mode 🌙
+Home Screen | Task Details | Statistics | History
+--- | --- | --- | ---
+![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/home_screen_dark.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/task_details_dark.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/statistics_dark.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/history_dark.png?raw=true)
 
 ## Getting Started
 
