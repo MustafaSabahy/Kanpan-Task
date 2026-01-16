@@ -19,15 +19,25 @@ class TaskEntity {
   bool get isTodo => kanbanColumn == AppConstants.columnTodo;
   bool get isDone => kanbanColumn == AppConstants.columnDone;
 
-  Duration get totalTimeSpent {
+  /// Get current displayed time
+  /// Returns totalTrackedTime + elapsed if running, otherwise totalTrackedTime
+  Duration getCurrentTime() {
     if (timeTracking == null) return Duration.zero;
-    return timeTracking!.totalDuration;
+    return timeTracking!.getCurrentTime();
   }
 
+  /// Legacy support
+  @Deprecated('Use getCurrentTime() instead')
+  Duration get totalTimeSpent => getCurrentTime();
+
+  /// Check if task has an active timer (isRunning and startTime set)
   bool get hasActiveTimer {
     if (timeTracking == null) return false;
-    return timeTracking!.sessions.any((s) => s.isActive);
+    return timeTracking!.isRunning && timeTracking!.startTime != null;
   }
+
+  /// Check if task is completed (Done) - timers are disabled
+  bool get isTimerDisabled => isDone;
 
   TaskEntity copyWith({
     TaskModel? task,

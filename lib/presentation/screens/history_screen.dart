@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../../gen/l10n/app_localizations.dart';
 import 'package:task/domain/entities/task_entity.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_formatter.dart';
@@ -19,6 +20,7 @@ class HistoryScreen extends StatelessWidget {
         }
 
         if (state is TaskError) {
+          // final l10n = AppLocalizations.of(context)!;
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -121,12 +123,14 @@ class _HistoryCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
       padding: const EdgeInsets.all(AppTheme.spacingM),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusM),
-        border: Border.all(color: AppTheme.borderColor),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).colorScheme.shadow.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

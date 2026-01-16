@@ -101,7 +101,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                       return Container(
                         padding: const EdgeInsets.all(AppTheme.spacingM),
                         decoration: BoxDecoration(
-                          color: AppTheme.backgroundColor,
+                          color: Theme.of(context).colorScheme.background,
                           borderRadius: BorderRadius.circular(AppTheme.radiusM),
                         ),
                         child: Column(

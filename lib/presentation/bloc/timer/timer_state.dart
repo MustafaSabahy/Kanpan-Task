@@ -1,32 +1,43 @@
 import 'package:equatable/equatable.dart';
 
+/// TimerState following business logic:
+/// - totalTrackedTime: saved time (only updated when stopped)
+/// - startTime: only set while running
+/// - currentDuration calculated on-the-fly: totalTrackedTime + (now - startTime)
 class TimerState extends Equatable {
   final String? taskId;
   final DateTime? startTime;
-  final Duration elapsed;
+  final Duration totalTrackedTime; // Saved time (not updated while running)
 
   const TimerState({
     this.taskId,
     this.startTime,
-    this.elapsed = Duration.zero,
+    this.totalTrackedTime = Duration.zero,
   });
 
   bool get isActive => taskId != null && startTime != null;
-  Duration get currentDuration =>
-      elapsed + (startTime != null ? DateTime.now().difference(startTime!) : Duration.zero);
+  
+  /// Calculate current displayed time on-the-fly
+  /// totalTrackedTime + elapsed time since startTime
+  Duration get currentDuration {
+    if (startTime != null) {
+      return totalTrackedTime + DateTime.now().difference(startTime!);
+    }
+    return totalTrackedTime;
+  }
 
   TimerState copyWith({
     String? taskId,
     DateTime? startTime,
-    Duration? elapsed,
+    Duration? totalTrackedTime,
   }) {
     return TimerState(
       taskId: taskId ?? this.taskId,
       startTime: startTime ?? this.startTime,
-      elapsed: elapsed ?? this.elapsed,
+      totalTrackedTime: totalTrackedTime ?? this.totalTrackedTime,
     );
   }
 
   @override
-  List<Object?> get props => [taskId, startTime, elapsed];
+  List<Object?> get props => [taskId, startTime, totalTrackedTime];
 }

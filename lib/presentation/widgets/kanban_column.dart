@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../../gen/l10n/app_localizations.dart';
 import 'package:task/presentation/widgets/comments_section.dart';
 import 'package:task/presentation/widgets/timer_widget.dart';
+import 'package:task/presentation/widgets/time_history_widget.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../data/repositories/comment_repository.dart';
@@ -24,61 +26,62 @@ class KanbanColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.all(AppTheme.spacingS),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusM),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppTheme.spacingM),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(AppTheme.radiusM),
-                topRight: Radius.circular(AppTheme.radiusM),
-              ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingM,
+              vertical: AppTheme.spacingM,
             ),
             child: Row(
               children: [
+                // Vertical colored bar
                 Container(
-                  width: 12,
-                  height: 12,
+                  width: 4,
+                  height: 20,
                   decoration: BoxDecoration(
                     color: color,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: AppTheme.spacingS),
+                const SizedBox(width: AppTheme.spacingM),
+                // Title text
                 Expanded(
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
                         ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
                 ),
                 const SizedBox(width: AppTheme.spacingS),
+                // Circular count badge
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacingS,
-                    vertical: 4,
-                  ),
+                  width: 24,
+                  height: 24,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    color: color,
+                    shape: BoxShape.circle,
                   ),
-                  child: Text(
-                    '${tasks.length}',
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                  child: Center(
+                    child: Text(
+                      '${tasks.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
@@ -122,6 +125,9 @@ class KanbanColumn extends StatelessWidget {
                     },
                   )
                 : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
                     padding: const EdgeInsets.all(AppTheme.spacingS),
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
@@ -186,6 +192,7 @@ class KanbanColumn extends StatelessWidget {
   }
 
   void _showTaskOptions(BuildContext context, TaskEntity task) {
+    // final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -216,6 +223,7 @@ class KanbanColumn extends StatelessWidget {
   }
 
   void _showEditTaskDialog(BuildContext context, TaskEntity task) {
+    // final l10n = AppLocalizations.of(context)!;
     final contentController = TextEditingController(text: task.task.content);
     final descriptionController = TextEditingController(
       text: task.task.description ?? '',
@@ -284,11 +292,12 @@ class TaskDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
       ),
       child: Column(
         children: [
@@ -329,7 +338,15 @@ class TaskDetailsSheet extends StatelessWidget {
                     const SizedBox(height: AppTheme.spacingL),
                   ],
                   // Timer widget
-                  TimerWidget(taskId: task.task.id),
+                  TimerWidget(
+                    taskId: task.task.id,
+                    isTaskDone: task.isDone,
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  // Time history
+                  TimeHistoryWidget(
+                    timeTracking: task.timeTracking,
+                  ),
                   const SizedBox(height: AppTheme.spacingL),
                   // Comments section
                   CommentsSection(taskId: task.task.id),

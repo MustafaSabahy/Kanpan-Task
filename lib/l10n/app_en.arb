@@ -1,0 +1,340 @@
+{
+  "@@locale": "en",
+  "appTitle": "Time Tracking App",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "board": "Board",
+  "@board": {
+    "description": "Board tab label"
+  },
+  "history": "History",
+  "@history": {
+    "description": "History tab label"
+  },
+  "statistics": "Statistics",
+  "@statistics": {
+    "description": "Statistics tab label"
+  },
+  "toDo": "To Do",
+  "@toDo": {
+    "description": "To Do column name"
+  },
+  "inProgress": "In Progress",
+  "@inProgress": {
+    "description": "In Progress column name"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Done column name"
+  },
+  "newTask": "New Task",
+  "@newTask": {
+    "description": "New task button label"
+  },
+  "createNewTask": "Create New Task",
+  "@createNewTask": {
+    "description": "Create task dialog title"
+  },
+  "taskTitle": "Task Title",
+  "@taskTitle": {
+    "description": "Task title field label"
+  },
+  "enterTaskTitle": "Enter task title",
+  "@enterTaskTitle": {
+    "description": "Task title placeholder"
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Description field label"
+  },
+  "enterTaskDescription": "Enter task description",
+  "@enterTaskDescription": {
+    "description": "Description placeholder"
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Create button"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  "editTask": "Edit Task",
+  "@editTask": {
+    "description": "Edit task dialog title"
+  },
+  "deleteTask": "Delete Task",
+  "@deleteTask": {
+    "description": "Delete task option"
+  },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Refresh button"
+  },
+  "enableDarkMode": "Enable Dark Mode",
+  "@enableDarkMode": {
+    "description": "Enable dark mode option"
+  },
+  "disableDarkMode": "Disable Dark Mode",
+  "@disableDarkMode": {
+    "description": "Disable dark mode option"
+  },
+  "clearAllTasks": "Clear All Tasks",
+  "@clearAllTasks": {
+    "description": "Clear all tasks option"
+  },
+  "clearTasksFromColumn": "Clear Tasks from Column",
+  "@clearTasksFromColumn": {
+    "description": "Clear tasks from column option"
+  },
+  "areYouSureDeleteAll": "Are you sure you want to delete all tasks? This action cannot be undone.",
+  "@areYouSureDeleteAll": {
+    "description": "Confirmation message for clearing all tasks"
+  },
+  "clearAll": "Clear All",
+  "@clearAll": {
+    "description": "Clear all button"
+  },
+  "timeTracker": "Time Tracker",
+  "@timeTracker": {
+    "description": "Time tracker widget title"
+  },
+  "timerRunning": "Timer running...",
+  "@timerRunning": {
+    "description": "Timer running indicator"
+  },
+  "totalTimeSpent": "Total time spent",
+  "@totalTimeSpent": {
+    "description": "Total time spent label"
+  },
+  "startTimer": "Start Timer",
+  "@startTimer": {
+    "description": "Start timer button"
+  },
+  "stopTimer": "Stop Timer",
+  "@stopTimer": {
+    "description": "Stop timer button"
+  },
+  "timerDisabledForCompleted": "Timer disabled for completed tasks",
+  "@timerDisabledForCompleted": {
+    "description": "Timer disabled message"
+  },
+  "comments": "Comments",
+  "@comments": {
+    "description": "Comments section title"
+  },
+  "addComment": "Add a comment...",
+  "@addComment": {
+    "description": "Add comment placeholder"
+  },
+  "noCommentsYet": "No comments yet",
+  "@noCommentsYet": {
+    "description": "No comments message"
+  },
+  "dropTaskHere": "Drop task here",
+  "@dropTaskHere": {
+    "description": "Empty column message"
+  },
+  "noTrackedTimeYet": "No tracked time yet",
+  "@noTrackedTimeYet": {
+    "description": "No tracked time message"
+  },
+  "startTrackingTime": "Start tracking time on tasks to see statistics",
+  "@startTrackingTime": {
+    "description": "Start tracking time message"
+  },
+  "overallSummary": "Overall Summary",
+  "@overallSummary": {
+    "description": "Overall summary section title"
+  },
+  "totalTime": "Total Time",
+  "@totalTime": {
+    "description": "Total time label"
+  },
+  "completed": "Completed",
+  "@completed": {
+    "description": "Completed label"
+  },
+  "avgPerTask": "Avg per Task",
+  "@avgPerTask": {
+    "description": "Average per task label"
+  },
+  "sessions": "Sessions",
+  "@sessions": {
+    "description": "Sessions label"
+  },
+  "timeByStatus": "Time by Status",
+  "@timeByStatus": {
+    "description": "Time by status section title"
+  },
+  "timeByTask": "Time by Task",
+  "@timeByTask": {
+    "description": "Time by task section title"
+  },
+  "timeOverTime": "Time Over Time",
+  "@timeOverTime": {
+    "description": "Time over time section title"
+  },
+  "filters": "Filters",
+  "@filters": {
+    "description": "Filters section title"
+  },
+  "dateRange": "Date Range",
+  "@dateRange": {
+    "description": "Date range filter label"
+  },
+  "allDates": "All dates",
+  "@allDates": {
+    "description": "All dates option"
+  },
+  "task": "Task",
+  "@task": {
+    "description": "Task filter label"
+  },
+  "allTasks": "All tasks",
+  "@allTasks": {
+    "description": "All tasks option"
+  },
+  "status": "Status",
+  "@status": {
+    "description": "Status filter label"
+  },
+  "allStatuses": "All statuses",
+  "@allStatuses": {
+    "description": "All statuses option"
+  },
+  "selectTask": "Select Task",
+  "@selectTask": {
+    "description": "Select task dialog title"
+  },
+  "selectStatus": "Select Status",
+  "@selectStatus": {
+    "description": "Select status dialog title"
+  },
+  "noDataMatchesFilters": "No data matches your filters",
+  "@noDataMatchesFilters": {
+    "description": "No data matches filters message"
+  },
+  "tryAdjustingFilters": "Try adjusting your filters to see statistics",
+  "@tryAdjustingFilters": {
+    "description": "Try adjusting filters message"
+  },
+  "noTimeTrackedYet": "No time tracked yet",
+  "@noTimeTrackedYet": {
+    "description": "No time tracked message"
+  },
+  "noTasksWithTrackedTime": "No tasks with tracked time",
+  "@noTasksWithTrackedTime": {
+    "description": "No tasks with tracked time message"
+  },
+  "noTimeDataAvailable": "No time data available",
+  "@noTimeDataAvailable": {
+    "description": "No time data available message"
+  },
+  "timeHistory": "Time History",
+  "@timeHistory": {
+    "description": "Time history section title"
+  },
+  "session": "{count, plural, =1{1 session} other{{count} sessions}}",
+  "@session": {
+    "description": "Number of sessions",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noTimeHistoryYet": "No time history yet",
+  "@noTimeHistoryYet": {
+    "description": "No time history message"
+  },
+  "started": "Started",
+  "@started": {
+    "description": "Session started reason"
+  },
+  "paused": "Paused",
+  "@paused": {
+    "description": "Session paused reason"
+  },
+  "movedToTodo": "Moved to Todo",
+  "@movedToTodo": {
+    "description": "Session moved to todo reason"
+  },
+  "completed": "Completed",
+  "@completed": {
+    "description": "Session completed reason"
+  },
+  "reopened": "Reopened",
+  "@reopened": {
+    "description": "Session reopened reason"
+  },
+  "resumedAfterRestart": "Resumed after restart",
+  "@resumedAfterRestart": {
+    "description": "Session resumed reason"
+  },
+  "appClosed": "App closed",
+  "@appClosed": {
+    "description": "Session app closed reason"
+  },
+  "sessionLabel": "Session",
+  "@sessionLabel": {
+    "description": "Session label"
+  },
+  "errorLoadingTasks": "Error loading tasks",
+  "@errorLoadingTasks": {
+    "description": "Error loading tasks message"
+  },
+  "errorLoadingHistory": "Error loading history",
+  "@errorLoadingHistory": {
+    "description": "Error loading history message"
+  },
+  "errorLoadingStatistics": "Error loading statistics",
+  "@errorLoadingStatistics": {
+    "description": "Error loading statistics message"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button"
+  },
+  "noCompletedTasksYet": "No completed tasks yet",
+  "@noCompletedTasksYet": {
+    "description": "No completed tasks message"
+  },
+  "completeTasksToSee": "Complete tasks to see them here",
+  "@completeTasksToSee": {
+    "description": "Complete tasks message"
+  },
+  "timeSpent": "Time Spent: ",
+  "@timeSpent": {
+    "description": "Time spent label"
+  },
+  "searchTasks": "Search tasks...",
+  "@searchTasks": {
+    "description": "Search tasks placeholder"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  "selectLanguage": "Select Language",
+  "@selectLanguage": {
+    "description": "Select language dialog title"
+  },
+  "english": "English",
+  "@english": {
+    "description": "English language name"
+  },
+  "german": "German",
+  "@german": {
+    "description": "German language name"
+  },
+  "arabic": "Arabic",
+  "@arabic": {
+    "description": "Arabic language name"
+  }
+}

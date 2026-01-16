@@ -5,6 +5,8 @@ import '../../core/utils/date_formatter.dart';
 import '../../domain/entities/task_entity.dart';
 import '../bloc/timer/timer_bloc.dart';
 import '../bloc/timer/timer_state.dart';
+import '../bloc/task/task_bloc.dart';
+import '../bloc/task/task_event.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskEntity task;
@@ -25,6 +27,21 @@ class TaskCard extends StatelessWidget {
     return BlocBuilder<TimerBloc, TimerState>(
       builder: (context, timerState) {
         final isTimerActive = timerState.isActive && timerState.taskId == task.task.id;
+        
+        // Calculate current time: if timer is active, use timerState, otherwise use task's time
+        Duration currentTime;
+        if (isTimerActive) {
+          currentTime = timerState.currentDuration;
+        } else {
+          // Check if task has running timer from storage (app restart scenario)
+          if (task.timeTracking?.isRunning == true && 
+              task.timeTracking?.startTime != null) {
+            final elapsed = DateTime.now().difference(task.timeTracking!.startTime!);
+            currentTime = task.timeTracking!.totalTrackedTime + elapsed;
+          } else {
+            currentTime = task.getCurrentTime();
+          }
+        }
 
         return Draggable<TaskEntity>(
       data: task,
@@ -52,15 +69,15 @@ class TaskCard extends StatelessWidget {
       ),
       childWhenDragging: Opacity(
         opacity: 0.3,
-        child: _buildCard(context, isTimerActive),
+        child: _buildCard(context, isTimerActive, currentTime),
       ),
-      child: _buildCard(context, isTimerActive),
+      child: _buildCard(context, isTimerActive, currentTime),
     );
       },
     );
   }
 
-  Widget _buildCard(BuildContext context, bool isTimerActive) {
+  Widget _buildCard(BuildContext context, bool isTimerActive, Duration currentTime) {
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -68,12 +85,12 @@ class TaskCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: AppTheme.spacingS),
         padding: const EdgeInsets.all(AppTheme.spacingM),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceColor,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppTheme.radiusM),
           border: Border.all(
             color: isTimerActive
                 ? AppTheme.primaryColor
-                : AppTheme.borderColor,
+                : Theme.of(context).colorScheme.outline.withOpacity(0.3),
             width: isTimerActive ? 2 : 1,
           ),
           boxShadow: [
@@ -112,6 +129,16 @@ class TaskCard extends StatelessWidget {
                       color: AppTheme.primaryColor,
                     ),
                   ),
+                const SizedBox(width: AppTheme.spacingS),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 18),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    context.read<TaskBloc>().add(DeleteTaskEvent(task.task.id));
+                  },
+                  color: AppTheme.textSecondary,
+                ),
               ],
             ),
             if (task.task.description != null) ...[
@@ -126,16 +153,60 @@ class TaskCard extends StatelessWidget {
             const SizedBox(height: AppTheme.spacingS),
             Row(
               children: [
-                if (task.totalTimeSpent > Duration.zero) ...[
-                  Icon(
-                    Icons.access_time,
-                    size: 14,
-                    color: AppTheme.textSecondary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    DateFormatter.formatDurationShort(task.totalTimeSpent),
-                    style: Theme.of(context).textTheme.bodySmall,
+                // Timer display with nice styling
+                if (currentTime > Duration.zero || isTimerActive) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingS,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isTimerActive
+                          ? AppTheme.primaryColor.withOpacity(0.1)
+                          : AppTheme.backgroundColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isTimerActive
+                            ? AppTheme.primaryColor
+                            : AppTheme.borderColor,
+                        width: isTimerActive ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isTimerActive ? Icons.timer : Icons.access_time,
+                          size: 14,
+                          color: isTimerActive
+                              ? AppTheme.primaryColor
+                              : AppTheme.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          DateFormatter.formatDurationShort(currentTime),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: isTimerActive
+                                    ? AppTheme.primaryColor
+                                    : AppTheme.textSecondary,
+                                fontWeight: isTimerActive
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                        ),
+                        if (isTimerActive) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                   const SizedBox(width: AppTheme.spacingS),
                 ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../../gen/l10n/app_localizations.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../bloc/task/task_bloc.dart';
@@ -8,7 +9,12 @@ import '../bloc/task/task_event.dart';
 import 'kanban_column.dart';
 
 class KanbanBoard extends StatelessWidget {
-  const KanbanBoard({super.key});
+  final String searchQuery;
+  
+  const KanbanBoard({
+    super.key,
+    this.searchQuery = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +25,7 @@ class KanbanBoard extends StatelessWidget {
         }
 
         if (state is TaskError) {
+          // final l10n = AppLocalizations.of(context)!;
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -46,38 +53,55 @@ class KanbanBoard extends StatelessWidget {
         }
 
         if (state is TaskLoaded) {
-          final tasks = state.tasks;
-          final todoTasks = tasks.where((t) => t.isTodo).toList();
-          final inProgressTasks = tasks.where((t) => t.isInProgress).toList();
-          final doneTasks = tasks.where((t) => t.isDone).toList();
+          // final l10n = AppLocalizations.of(context)!;
+          // Filter tasks by search query if provided
+          final filteredTasks = searchQuery.isEmpty
+              ? state.tasks
+              : state.tasks.where((task) {
+                  final content = task.task.content.toLowerCase();
+                  final description = task.task.description?.toLowerCase() ?? '';
+                  return content.contains(searchQuery) || 
+                         description.contains(searchQuery);
+                }).toList();
+          
+          final todoTasks = filteredTasks.where((t) => t.isTodo).toList();
+          final inProgressTasks = filteredTasks.where((t) => t.isInProgress).toList();
+          final doneTasks = filteredTasks.where((t) => t.isDone).toList();
 
           return Container(
-            color: AppTheme.backgroundColor,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: KanbanColumn(
-                    title: AppConstants.columnTodo,
-                    tasks: todoTasks,
-                    color: AppTheme.todoColor,
+            color: Theme.of(context).colorScheme.background,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: KanbanColumn(
+                      title: 'To Do',
+                      tasks: todoTasks,
+                      color: AppTheme.todoColor,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: KanbanColumn(
-                    title: AppConstants.columnInProgress,
-                    tasks: inProgressTasks,
-                    color: AppTheme.inProgressColor,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: KanbanColumn(
+                      title: 'In Progress',
+                      tasks: inProgressTasks,
+                      color: AppTheme.inProgressColor,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: KanbanColumn(
-                    title: AppConstants.columnDone,
-                    tasks: doneTasks,
-                    color: AppTheme.doneColor,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: KanbanColumn(
+                      title: 'Done',
+                      tasks: doneTasks,
+                      color: AppTheme.doneColor,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }

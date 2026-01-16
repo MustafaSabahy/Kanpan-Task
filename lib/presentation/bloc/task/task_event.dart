@@ -64,3 +64,16 @@ class MoveTaskEvent extends TaskEvent {
   @override
   List<Object?> get props => [taskId, newColumn];
 }
+
+class ClearAllTasksEvent extends TaskEvent {
+  const ClearAllTasksEvent();
+}
+
+class ClearTasksFromColumnEvent extends TaskEvent {
+  final String column;
+
+  const ClearTasksFromColumnEvent(this.column);
+
+  @override
+  List<Object?> get props => [column];
+}

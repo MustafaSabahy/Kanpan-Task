@@ -11,12 +11,16 @@ class TimeTrackingRepository {
     final key = '$_keyPrefix${tracking.taskId}';
     final json = jsonEncode({
       'taskId': tracking.taskId,
-      'totalDuration': tracking.totalDuration.inMilliseconds,
+      'totalTrackedTime': tracking.totalTrackedTime.inMilliseconds,
+      'startTime': tracking.startTime?.toIso8601String(),
+      'isRunning': tracking.isRunning,
       'sessions': tracking.sessions.map((s) => {
             'startTime': s.startTime.toIso8601String(),
             'endTime': s.endTime?.toIso8601String(),
+            'statusChangeReason': s.statusChangeReason,
           }).toList(),
       'completedAt': tracking.completedAt?.toIso8601String(),
+      'lastColumn': tracking.lastColumn,
     });
     await prefs.setString(key, json);
   }
@@ -28,20 +32,31 @@ class TimeTrackingRepository {
     if (jsonString == null) return null;
 
     final json = jsonDecode(jsonString) as Map<String, dynamic>;
+    
+    // Handle legacy format (totalDuration) and new format (totalTrackedTime)
+    final totalTime = json['totalTrackedTime'] as int? ?? 
+                     json['totalDuration'] as int? ?? 0;
+    
     return TaskTimeTracking(
       taskId: json['taskId'] as String,
-      totalDuration: Duration(milliseconds: json['totalDuration'] as int),
-      sessions: (json['sessions'] as List)
+      totalTrackedTime: Duration(milliseconds: totalTime),
+      startTime: json['startTime'] != null
+          ? DateTime.parse(json['startTime'] as String)
+          : null,
+      isRunning: json['isRunning'] as bool? ?? false,
+      sessions: (json['sessions'] as List? ?? [])
           .map((s) => TimeSession(
                 startTime: DateTime.parse(s['startTime'] as String),
                 endTime: s['endTime'] != null
                     ? DateTime.parse(s['endTime'] as String)
                     : null,
+                statusChangeReason: s['statusChangeReason'] as String?,
               ))
           .toList(),
       completedAt: json['completedAt'] != null
           ? DateTime.parse(json['completedAt'] as String)
           : null,
+      lastColumn: json['lastColumn'] as String?,
     );
   }
 
@@ -54,10 +69,17 @@ class TimeTrackingRepository {
       final jsonString = prefs.getString(key);
       if (jsonString != null) {
         final json = jsonDecode(jsonString) as Map<String, dynamic>;
+        final totalTime = json['totalTrackedTime'] as int? ?? 
+                         json['totalDuration'] as int? ?? 0;
+        
         trackings.add(TaskTimeTracking(
           taskId: json['taskId'] as String,
-          totalDuration: Duration(milliseconds: json['totalDuration'] as int),
-          sessions: (json['sessions'] as List)
+          totalTrackedTime: Duration(milliseconds: totalTime),
+          startTime: json['startTime'] != null
+              ? DateTime.parse(json['startTime'] as String)
+              : null,
+          isRunning: json['isRunning'] as bool? ?? false,
+          sessions: (json['sessions'] as List? ?? [])
               .map((s) => TimeSession(
                     startTime: DateTime.parse(s['startTime'] as String),
                     endTime: s['endTime'] != null
@@ -68,6 +90,7 @@ class TimeTrackingRepository {
           completedAt: json['completedAt'] != null
               ? DateTime.parse(json['completedAt'] as String)
               : null,
+          lastColumn: json['lastColumn'] as String?,
         ));
       }
     }

@@ -23,3 +23,7 @@ class StopTimerEvent extends TimerEvent {
 class TimerTickEvent extends TimerEvent {
   const TimerTickEvent();
 }
+
+class ResumeTimersEvent extends TimerEvent {
+  const ResumeTimersEvent();
+}

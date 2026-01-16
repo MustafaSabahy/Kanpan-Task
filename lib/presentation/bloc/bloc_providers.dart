@@ -5,20 +5,32 @@ import '../../data/repositories/comment_repository.dart';
 import 'task/task_bloc.dart';
 import 'task/task_event.dart';
 import 'timer/timer_bloc.dart';
+import 'timer/timer_event.dart';
 import 'comment/comment_bloc.dart';
 
 class BlocProviders {
   static List<BlocProvider> get providers => [
-        BlocProvider<TaskBloc>(
-          create: (context) => TaskBloc(
-            taskRepository: TaskRepository(),
-            timeTrackingRepository: TimeTrackingRepository(),
-          )..add(const LoadTasksEvent()),
-        ),
+        // Create TimerBloc first (it doesn't depend on TaskBloc)
         BlocProvider<TimerBloc>(
-          create: (context) => TimerBloc(
-            repository: TimeTrackingRepository(),
-          ),
+          create: (context) {
+            final timerBloc = TimerBloc(
+              repository: TimeTrackingRepository(),
+            );
+            // Resume timers on app start
+            timerBloc.add(const ResumeTimersEvent());
+            return timerBloc;
+          },
+        ),
+        // Create TaskBloc with TimerBloc reference
+        BlocProvider<TaskBloc>(
+          create: (context) {
+            final timerBloc = context.read<TimerBloc>();
+            return TaskBloc(
+              taskRepository: TaskRepository(),
+              timeTrackingRepository: TimeTrackingRepository(),
+              timerBloc: timerBloc,
+            )..add(const LoadTasksEvent());
+          },
         ),
       ];
 
