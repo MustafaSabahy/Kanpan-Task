@@ -161,3 +161,4 @@ Potential improvements:
 
 This project is created as a take-home challenge for a Flutter developer position.
 # Kanpan-Task
+# Kanpan-Task
