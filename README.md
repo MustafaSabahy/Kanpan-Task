@@ -28,9 +28,9 @@ Home Screen | Task Details | Statistics | History | Done details | Splash Screen
 ![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/light%20home.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/light%20details.png)|![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/analytics%20light.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/history%20.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/done%20details.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/splash.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/list%20sheet%20.png)
 
 ### Dark Mode 🌙
-Home Screen | Task Details | Statistics | History
+Home Screen | Task Details | Statistics | light delete tasks of column 
 --- | --- | --- | ---
-![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/home_screen_dark.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/task_details_dark.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/statistics_dark.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/history_dark.png?raw=true)
+![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/dark%20home.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/dark%20datiles.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/analytics%20dark.png) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/delete%20column%20rtasks%20.png)
 
 ## Getting Started
 
