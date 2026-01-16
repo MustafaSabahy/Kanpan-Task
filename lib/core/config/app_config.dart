@@ -14,7 +14,7 @@ class AppConfig {
   /// This file is already in .gitignore for security.
   static String get todoistApiToken {
     // 👇 REPLACE THIS WITH YOUR ACTUAL TODOIST API TOKEN 👇
-    const token = '5dc0b6e5c817a096d55634846fa86a0ec0c873dd';
+    const token = 'YOUR_TODOIST_API_TOKEN_HERE';
     // 👆 Get your token from: https://developer.todoist.com/appconsole.html 👆
     
     return token;
