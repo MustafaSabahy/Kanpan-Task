@@ -2,7 +2,7 @@
 
 A Flutter application for managing tasks with integrated time tracking using a Kanban board interface.
 
-![GitHub Cards Preview](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/cover.png?raw=true)
+![GitHub Cards Preview](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/cover%20.png)
 
 
 
