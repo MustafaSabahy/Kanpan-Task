@@ -16,7 +16,10 @@ A Flutter application for managing tasks with integrated time tracking using a K
 - **Dark Mode**: Full dark mode support
 - **Multi-Language**: English, Arabic (RTL), and German support
 - **Search**: Real-time task search functionality
+## Demo Videos 🎥
 
+### Full App Walkthrough
+[![App Demo](https://img.youtube.com/vi/1gdANEV0PyY/0.jpg)](https://www.youtube.com/watch?v=1gdANEV0PyY)
 ## Screenshots 📸
 
 ### Light Mode 🌞
