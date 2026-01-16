@@ -25,7 +25,7 @@ A Flutter application for managing tasks with integrated time tracking using a K
 ### Light Mode 🌞
 Home Screen | Task Details | Statistics | History | Dark Mode | Splash Screen | Language Selection
 --- | --- | --- | --- | --- | --- | ---
-![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/home_screen_light.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/task_details.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/statistics.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/history.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/dark_mode.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/splash_screen.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/language_selection.png?raw=true)
+![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/home_screen_light.png?raw=true) |![]([https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/task_details.png?raw=true](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/splash.png)) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/statistics.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/history.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/dark_mode.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/splash_screen.png?raw=true) |![](https://github.com/MustafaSabahy/Kanpan-Task/blob/main/screenshots/language_selection.png?raw=true)
 
 ### Dark Mode 🌙
 Home Screen | Task Details | Statistics | History
