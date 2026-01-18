@@ -1,11 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../../../data/repositories/time_tracking_repository.dart';
+import '../../../data/repositories/offline_queue_repository.dart';
 import '../../../data/models/task_model.dart';
 import '../../../data/models/task_time_tracking.dart';
+import '../../../data/models/offline_task.dart';
 import '../../../domain/entities/task_entity.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/notification_service.dart';
+import '../../../core/services/connectivity_service.dart';
+import '../../../core/services/sync_service.dart';
 import '../timer/timer_bloc.dart';
 import '../timer/timer_event.dart';
 import 'task_event.dart';
@@ -14,15 +19,22 @@ import 'task_state.dart';
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final TaskRepository _taskRepository;
   final TimeTrackingRepository _timeTrackingRepository;
+  final OfflineQueueRepository _offlineQueue;
+  final SyncService? _syncService;
   final TimerBloc? _timerBloc;
   final NotificationService _notificationService = NotificationService();
+  final _uuid = const Uuid();
 
   TaskBloc({
     required TaskRepository taskRepository,
     required TimeTrackingRepository timeTrackingRepository,
+    required OfflineQueueRepository offlineQueue,
+    SyncService? syncService,
     TimerBloc? timerBloc,
   })  : _taskRepository = taskRepository,
         _timeTrackingRepository = timeTrackingRepository,
+        _offlineQueue = offlineQueue,
+        _syncService = syncService,
         _timerBloc = timerBloc,
         super(const TaskInitial()) {
     on<LoadTasksEvent>(_onLoadTasks);
@@ -32,9 +44,19 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<MoveTaskEvent>(_onMoveTask);
     on<ClearAllTasksEvent>(_onClearAllTasks);
     on<ClearTasksFromColumnEvent>(_onClearTasksFromColumn);
+    on<SyncOfflineDataEvent>(_onSyncOfflineData);
     
     // Initialize notification service
     _notificationService.initialize();
+    
+    // Try to sync offline data on startup
+    _trySyncOnStartup();
+  }
+
+  Future<void> _trySyncOnStartup() async {
+    if (await ConnectivityService.hasConnectionWithTimeout()) {
+      add(const SyncOfflineDataEvent());
+    }
   }
 
   Future<void> _onLoadTasks(
@@ -42,6 +64,16 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     Emitter<TaskState> emit,
   ) async {
     emit(const TaskLoading());
+    
+    // Check connectivity first
+    final hasConnection = await ConnectivityService.hasConnectionWithTimeout();
+    
+    if (!hasConnection) {
+      // Offline mode: Load from local storage only
+      await _loadTasksFromLocal(emit);
+      return;
+    }
+    
     try {
       final tasks = await _taskRepository.getTasks();
       final timeTrackings = await _timeTrackingRepository.getAllTimeTrackings();
@@ -60,7 +92,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           .map((tt) => tt.taskId)
           .toList();
       
-      // Try to fetch completed tasks individually
+      // Try to fetch completed tasks individually (only if online)
       final completedTasks = <TaskModel>[];
       for (final taskId in doneTaskIds) {
         try {
@@ -86,7 +118,60 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
       emit(TaskLoaded(taskEntities));
     } catch (e) {
-      emit(TaskError(e.toString()));
+      // If API fails, try to load from local storage
+      await _loadTasksFromLocal(emit);
+    }
+  }
+
+  /// Load tasks from local storage (offline mode)
+  Future<void> _loadTasksFromLocal(Emitter<TaskState> emit) async {
+    try {
+      final timeTrackings = await _timeTrackingRepository.getAllTimeTrackings();
+      final offlineTasks = await _offlineQueue.getOfflineTasks();
+      
+      // Create task entities from offline tasks and time tracking
+      final taskEntities = <TaskEntity>[];
+      
+      // Add tasks from time tracking (these are tasks that were previously loaded)
+      for (final tracking in timeTrackings) {
+        // Check if this is an offline task (starts with 'offline_')
+        if (tracking.taskId.startsWith('offline_')) {
+          // This is an offline task - find it in offline queue
+          final offlineTaskId = tracking.taskId.replaceFirst('offline_', '');
+          final offlineTaskList = offlineTasks.where((ot) => ot.id == offlineTaskId).toList();
+          final offlineTask = offlineTaskList.isNotEmpty ? offlineTaskList.first : null;
+          
+          if (offlineTask != null) {
+            // Create a mock TaskModel for offline tasks
+            final mockTask = TaskModel(
+              id: tracking.taskId,
+              projectId: 'offline',
+              content: offlineTask.content,
+              description: offlineTask.description,
+              isCompleted: false,
+              order: 0,
+              priority: offlineTask.priority ?? 1,
+              commentCount: 0,
+            );
+            
+            taskEntities.add(TaskEntity(
+              task: mockTask,
+              timeTracking: tracking,
+              kanbanColumn: tracking.lastColumn ?? AppConstants.columnTodo,
+            ));
+          }
+        }
+      }
+      
+      // If no tasks found, show empty state
+      if (taskEntities.isEmpty) {
+        emit(TaskLoaded([]));
+      } else {
+        emit(TaskLoaded(taskEntities));
+      }
+    } catch (e) {
+      // Show empty list instead of error in offline mode
+      emit(TaskLoaded([]));
     }
   }
 
@@ -110,70 +195,155 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     CreateTaskEvent event,
     Emitter<TaskState> emit,
   ) async {
-    try {
-      final task = await _taskRepository.createTask(
-        content: event.content,
-        description: event.description,
-        priority: event.priority,
-      );
-      // Initialize time tracking with Todo column
-      final initialTracking = TaskTimeTracking(
-        taskId: task.id,
-        totalTrackedTime: Duration.zero,
-        startTime: null,
-        isRunning: false,
-        sessions: [],
-        lastColumn: AppConstants.columnTodo,
-      );
-      await _timeTrackingRepository.saveTimeTracking(initialTracking);
-      
-      // Schedule notification if task has a due date
-      await _scheduleNotificationIfNeeded(task);
-      
+    final hasConnection = await ConnectivityService.hasConnectionWithTimeout();
+    
+    if (hasConnection) {
+      // Try to create task online
+      try {
+        final task = await _taskRepository.createTask(
+          content: event.content,
+          description: event.description,
+          priority: event.priority,
+        );
+        // Initialize time tracking with Todo column
+        final initialTracking = TaskTimeTracking(
+          taskId: task.id,
+          totalTrackedTime: Duration.zero,
+          startTime: null,
+          isRunning: false,
+          sessions: [],
+          lastColumn: AppConstants.columnTodo,
+        );
+        await _timeTrackingRepository.saveTimeTracking(initialTracking);
+        
+        // Schedule notification if task has a due date
+        await _scheduleNotificationIfNeeded(task);
+        
+        add(const LoadTasksEvent());
+      } catch (e) {
+        // If online creation fails, save to offline queue
+        await _saveTaskToOfflineQueue(event);
+        add(const LoadTasksEvent());
+      }
+    } else {
+      // No connection - save to offline queue
+      await _saveTaskToOfflineQueue(event);
       add(const LoadTasksEvent());
-    } catch (e) {
-      emit(TaskError(e.toString()));
     }
+  }
+
+  Future<void> _saveTaskToOfflineQueue(CreateTaskEvent event) async {
+    final offlineTask = OfflineTask(
+      id: _uuid.v4(),
+      content: event.content,
+      description: event.description,
+      priority: event.priority,
+      createdAt: DateTime.now(),
+      action: 'create',
+    );
+    await _offlineQueue.addOfflineTask(offlineTask);
+    
+    // Create a local task ID for time tracking
+    final localTaskId = 'offline_${offlineTask.id}';
+    final initialTracking = TaskTimeTracking(
+      taskId: localTaskId,
+      totalTrackedTime: Duration.zero,
+      startTime: null,
+      isRunning: false,
+      sessions: [],
+      lastColumn: AppConstants.columnTodo,
+    );
+    await _timeTrackingRepository.saveTimeTracking(initialTracking);
   }
 
   Future<void> _onUpdateTask(
     UpdateTaskEvent event,
     Emitter<TaskState> emit,
   ) async {
-    try {
-      final updatedTask = await _taskRepository.updateTask(
-        event.id,
-        content: event.content,
-        description: event.description,
-        priority: event.priority,
-      );
-      
-      // Update notification if due date changed
-      if (updatedTask != null) {
-        await _scheduleNotificationIfNeeded(updatedTask);
+    final hasConnection = await ConnectivityService.hasConnectionWithTimeout();
+    
+    if (hasConnection) {
+      try {
+        final updatedTask = await _taskRepository.updateTask(
+          event.id,
+          content: event.content,
+          description: event.description,
+          priority: event.priority,
+        );
+        
+        // Update notification if due date changed
+        if (updatedTask != null) {
+          await _scheduleNotificationIfNeeded(updatedTask);
+        }
+        
+        add(const LoadTasksEvent());
+      } catch (e) {
+        // If online update fails, save to offline queue
+        await _saveUpdateToOfflineQueue(event);
+        add(const LoadTasksEvent());
       }
-      
+    } else {
+      // No connection - save to offline queue
+      await _saveUpdateToOfflineQueue(event);
       add(const LoadTasksEvent());
-    } catch (e) {
-      emit(TaskError(e.toString()));
     }
+  }
+
+  Future<void> _saveUpdateToOfflineQueue(UpdateTaskEvent event) async {
+    final offlineTask = OfflineTask(
+      id: _uuid.v4(),
+      content: event.content ?? '',
+      description: event.description,
+      priority: event.priority,
+      createdAt: DateTime.now(),
+      action: 'update',
+      originalTaskId: event.id,
+    );
+    await _offlineQueue.addOfflineTask(offlineTask);
   }
 
   Future<void> _onDeleteTask(
     DeleteTaskEvent event,
     Emitter<TaskState> emit,
   ) async {
-    try {
-      await _taskRepository.deleteTask(event.id);
+    final hasConnection = await ConnectivityService.hasConnectionWithTimeout();
+    
+    if (hasConnection) {
+      try {
+        await _taskRepository.deleteTask(event.id);
+        await _timeTrackingRepository.deleteTimeTracking(event.id);
+        
+        // Cancel notification for deleted task
+        await _notificationService.cancelTaskNotificationByTaskId(event.id);
+        
+        add(const LoadTasksEvent());
+      } catch (e) {
+        // If online delete fails, save to offline queue
+        await _saveDeleteToOfflineQueue(event);
+        // Still delete locally for better UX
+        await _timeTrackingRepository.deleteTimeTracking(event.id);
+        await _notificationService.cancelTaskNotificationByTaskId(event.id);
+        add(const LoadTasksEvent());
+      }
+    } else {
+      // No connection - save to offline queue
+      await _saveDeleteToOfflineQueue(event);
+      // Still delete locally for better UX
       await _timeTrackingRepository.deleteTimeTracking(event.id);
-      
-      // Cancel notification for deleted task
       await _notificationService.cancelTaskNotificationByTaskId(event.id);
-      
       add(const LoadTasksEvent());
-    } catch (e) {
-      emit(TaskError(e.toString()));
     }
+  }
+
+  Future<void> _saveDeleteToOfflineQueue(DeleteTaskEvent event) async {
+    final offlineTask = OfflineTask(
+      id: _uuid.v4(),
+      content: '', // Not needed for delete
+      createdAt: DateTime.now(),
+      action: 'delete',
+      originalTaskId: event.id,
+    );
+    await _offlineQueue.addOfflineTask(offlineTask);
   }
 
   Future<void> _onMoveTask(
@@ -452,6 +622,23 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       } catch (e) {
         // If parsing fails, skip notification scheduling
       }
+    }
+  }
+
+  Future<void> _onSyncOfflineData(
+    SyncOfflineDataEvent event,
+    Emitter<TaskState> emit,
+  ) async {
+    if (_syncService == null) return;
+    
+    try {
+      final result = await _syncService!.syncAll();
+      if (result.success) {
+        // Reload tasks after successful sync
+        add(const LoadTasksEvent());
+      }
+    } catch (e) {
+      // Silently fail - sync will retry later
     }
   }
 }

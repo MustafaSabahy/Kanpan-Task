@@ -98,45 +98,47 @@ class _CommentsSectionState extends State<CommentsSection> {
                     separatorBuilder: (_, __) => const SizedBox(height: AppTheme.spacingS),
                     itemBuilder: (context, index) {
                       final comment = comments[index];
-                      return Container(
-                        padding: const EdgeInsets.all(AppTheme.spacingM),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.background,
-                          borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              comment.content,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: AppTheme.spacingS),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  DateFormatter.formatDateTime(
-                                    DateTime.parse(comment.postedAt),
+                      return RepaintBoundary(
+                        child: Container(
+                          padding: const EdgeInsets.all(AppTheme.spacingM),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.background,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusM),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                comment.content,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: AppTheme.spacingS),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    DateFormatter.formatDateTime(
+                                      DateTime.parse(comment.postedAt),
+                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall,
                                   ),
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, size: 18),
-                                  onPressed: () {
-                                    context.read<CommentBloc>().add(
-                                          DeleteCommentEvent(
-                                            taskId: widget.taskId,
-                                            commentId: comment.id,
-                                          ),
-                                        );
-                                  },
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, size: 18),
+                                    onPressed: () {
+                                      context.read<CommentBloc>().add(
+                                            DeleteCommentEvent(
+                                              taskId: widget.taskId,
+                                              commentId: comment.id,
+                                            ),
+                                          );
+                                    },
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

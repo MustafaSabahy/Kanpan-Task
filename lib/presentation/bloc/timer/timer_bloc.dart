@@ -30,6 +30,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   }
 
   /// Start periodic timer for UI updates (doesn't save time)
+  /// Optimized: Only ticks when timer is active, reduces battery usage
   void _startTickTimer() {
     _tickTimer?.cancel();
     _tickTimer = Timer.periodic(

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/theme/app_theme.dart';
@@ -10,7 +9,7 @@ import '../bloc/task/task_bloc.dart';
 import '../bloc/task/task_event.dart';
 import '../../core/constants/app_constants.dart';
 
-class TimerWidget extends StatefulWidget {
+class TimerWidget extends StatelessWidget {
   final String taskId;
   final bool isTaskDone; // Whether task is in Done column
 
@@ -21,71 +20,49 @@ class TimerWidget extends StatefulWidget {
   });
 
   @override
-  State<TimerWidget> createState() => _TimerWidgetState();
-}
-
-class _TimerWidgetState extends State<TimerWidget> {
-  Timer? _updateTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _startUpdateTimer();
-  }
-
-  void _startUpdateTimer() {
-    _updateTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) {
-        if (mounted) {
-          setState(() {});
-        }
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _updateTimer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TimerBloc, TimerState>(
-      builder: (context, timerState) {
-        final isActive = timerState.isActive && timerState.taskId == widget.taskId;
+    // Use BlocSelector to only rebuild when timer state actually changes for this task
+    return BlocSelector<TimerBloc, TimerState, _TimerDisplayData>(
+      selector: (state) {
+        final isActive = state.isActive && state.taskId == taskId;
+        final currentDuration = isActive 
+            ? state.currentDuration 
+            : Duration.zero; // Will be loaded async if needed
         
-        // Calculate current displayed time
-        Duration currentDuration;
-        if (isActive) {
-          // Timer is running: totalTrackedTime + (now - startTime)
-          currentDuration = timerState.currentDuration;
-        } else {
-          // Timer not running: get from storage
-          // Use FutureBuilder to get async time
+        return _TimerDisplayData(
+          isActive: isActive,
+          currentDuration: currentDuration,
+          taskId: state.taskId,
+        );
+      },
+      builder: (context, displayData) {
+        // If timer is not active, load time from storage asynchronously
+        if (!displayData.isActive) {
           return FutureBuilder<Duration>(
-            future: context.read<TimerBloc>().getCurrentTime(widget.taskId),
+            future: context.read<TimerBloc>().getCurrentTime(taskId),
             builder: (context, snapshot) {
-              currentDuration = snapshot.data ?? Duration.zero;
-              return _buildTimerUI(context, timerState, isActive, currentDuration);
+              final duration = snapshot.data ?? Duration.zero;
+              return _buildTimerUI(
+                context,
+                displayData.copyWith(currentDuration: duration),
+              );
             },
           );
         }
-
-        return _buildTimerUI(context, timerState, isActive, currentDuration);
+        
+        return _buildTimerUI(context, displayData);
       },
     );
   }
 
   Widget _buildTimerUI(
     BuildContext context,
-    TimerState timerState,
-    bool isActive,
-    Duration currentDuration,
+    _TimerDisplayData displayData,
   ) {
     // Timers are disabled for Done tasks
-    final isDisabled = widget.isTaskDone;
+    final isDisabled = isTaskDone;
+    final isActive = displayData.isActive;
+    final currentDuration = displayData.currentDuration;
 
     final theme = Theme.of(context);
     return Container(
@@ -179,12 +156,12 @@ class _TimerWidgetState extends State<TimerWidget> {
                           // Move task to In Progress when starting timer
                           context.read<TaskBloc>().add(
                                 MoveTaskEvent(
-                                  taskId: widget.taskId,
+                                  taskId: taskId,
                                   newColumn: AppConstants.columnInProgress,
                                 ),
                               );
                           // Start timer
-                          context.read<TimerBloc>().add(StartTimerEvent(widget.taskId));
+                          context.read<TimerBloc>().add(StartTimerEvent(taskId));
                         }),
               icon: Icon(isActive ? Icons.stop : Icons.play_arrow),
               label: Text(isActive ? 'Stop Timer' : 'Start Timer'),
@@ -202,6 +179,31 @@ class _TimerWidgetState extends State<TimerWidget> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Helper class to hold timer display data for BlocSelector
+class _TimerDisplayData {
+  final bool isActive;
+  final Duration currentDuration;
+  final String? taskId;
+
+  const _TimerDisplayData({
+    required this.isActive,
+    required this.currentDuration,
+    this.taskId,
+  });
+
+  _TimerDisplayData copyWith({
+    bool? isActive,
+    Duration? currentDuration,
+    String? taskId,
+  }) {
+    return _TimerDisplayData(
+      isActive: isActive ?? this.isActive,
+      currentDuration: currentDuration ?? this.currentDuration,
+      taskId: taskId ?? this.taskId,
     );
   }
 }

@@ -61,6 +61,9 @@ dependencies:
   uuid: ^4.5.1
   timeago: ^3.7.0
   
+  # Connectivity
+  connectivity_plus: ^6.0.5
+  
   # Localization
   flutter_localizations:
     sdk: flutter
@@ -72,6 +75,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Testing
+  bloc_test: ^9.1.5
+  mocktail: ^1.0.1
 
   # Linting
   flutter_lints: ^6.0.0

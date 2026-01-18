@@ -7,6 +7,7 @@ import 'package:task/presentation/widgets/time_history_widget.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../data/repositories/comment_repository.dart';
+import '../../data/repositories/offline_queue_repository.dart';
 import '../bloc/task/task_bloc.dart';
 import '../bloc/task/task_event.dart';
 import '../bloc/comment/comment_bloc.dart';
@@ -147,11 +148,13 @@ class KanbanColumn extends StatelessWidget {
                         builder: (context, candidateData, rejectedData) {
                           return Stack(
                             children: [
-                              TaskCard(
-                                task: task,
-                                currentColumn: title,
-                                onTap: () => _showTaskDetails(context, task),
-                                onLongPress: () => _showTaskOptions(context, task),
+                              RepaintBoundary(
+                                child: TaskCard(
+                                  task: task,
+                                  currentColumn: title,
+                                  onTap: () => _showTaskDetails(context, task),
+                                  onLongPress: () => _showTaskOptions(context, task),
+                                ),
                               ),
                               if (candidateData.isNotEmpty)
                                 Container(
@@ -181,9 +184,10 @@ class KanbanColumn extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => BlocProvider(
+      builder: (context) => BlocProvider<CommentBloc>(
         create: (context) => CommentBloc(
           repository: CommentRepository(),
+          offlineQueue: OfflineQueueRepository(),
           taskId: task.task.id,
         ),
         child: TaskDetailsSheet(task: task),

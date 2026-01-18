@@ -24,26 +24,23 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TimerBloc, TimerState>(
-      builder: (context, timerState) {
-        final isTimerActive = timerState.isActive && timerState.taskId == task.task.id;
+    // Use BlocSelector to only rebuild when timer state changes for THIS specific task
+    // This prevents unnecessary rebuilds when other tasks' timers tick
+    return BlocSelector<TimerBloc, TimerState, _TaskTimerData>(
+      selector: (state) {
+        final isTimerActive = state.isActive && state.taskId == task.task.id;
+        final currentTime = isTimerActive 
+            ? state.currentDuration 
+            : task.getCurrentTime();
         
-        // Calculate current time: if timer is active, use timerState, otherwise use task's time
-        Duration currentTime;
-        if (isTimerActive) {
-          currentTime = timerState.currentDuration;
-        } else {
-          // Check if task has running timer from storage (app restart scenario)
-          if (task.timeTracking?.isRunning == true && 
-              task.timeTracking?.startTime != null) {
-            final elapsed = DateTime.now().difference(task.timeTracking!.startTime!);
-            currentTime = task.timeTracking!.totalTrackedTime + elapsed;
-          } else {
-            currentTime = task.getCurrentTime();
-          }
-        }
-
-        return Draggable<TaskEntity>(
+        return _TaskTimerData(
+          isTimerActive: isTimerActive,
+          currentTime: currentTime,
+        );
+      },
+      builder: (context, timerData) {
+        return RepaintBoundary(
+          child: Draggable<TaskEntity>(
       data: task,
       feedback: Material(
         elevation: 8,
@@ -69,10 +66,11 @@ class TaskCard extends StatelessWidget {
       ),
       childWhenDragging: Opacity(
         opacity: 0.3,
-        child: _buildCard(context, isTimerActive, currentTime),
+        child: _buildCard(context, timerData.isTimerActive, timerData.currentTime),
       ),
-      child: _buildCard(context, isTimerActive, currentTime),
-    );
+      child: _buildCard(context, timerData.isTimerActive, timerData.currentTime),
+          ),
+        );
       },
     );
   }
@@ -229,4 +227,16 @@ class TaskCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Helper class to hold timer data for BlocSelector
+/// Prevents unnecessary rebuilds when timer ticks for other tasks
+class _TaskTimerData {
+  final bool isTimerActive;
+  final Duration currentTime;
+
+  const _TaskTimerData({
+    required this.isTimerActive,
+    required this.currentTime,
+  });
 }

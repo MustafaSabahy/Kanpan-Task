@@ -77,3 +77,7 @@ class ClearTasksFromColumnEvent extends TaskEvent {
   @override
   List<Object?> get props => [column];
 }
+
+class SyncOfflineDataEvent extends TaskEvent {
+  const SyncOfflineDataEvent();
+}

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:provider/provider.dart';
 // import '../../gen/l10n/app_localizations.dart';
 import '../widgets/kanban_board.dart';
+import '../widgets/offline_indicator.dart';
 import '../bloc/task/task_bloc.dart';
 import '../bloc/task/task_event.dart';
 import '../../core/theme/app_theme.dart';
@@ -88,12 +89,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
+      body: Column(
         children: [
-          KanbanBoard(searchQuery: _searchQuery),
-          const HistoryScreen(),
-          const StatisticsScreen(),
+          const OfflineIndicator(),
+          Expanded(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: [
+                KanbanBoard(searchQuery: _searchQuery),
+                const HistoryScreen(),
+                const StatisticsScreen(),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

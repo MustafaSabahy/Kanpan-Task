@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // import '../../gen/l10n/app_localizations.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
+import '../../domain/entities/task_entity.dart';
 import '../bloc/task/task_bloc.dart';
 import '../bloc/task/task_state.dart';
 import '../bloc/task/task_event.dart';
@@ -15,6 +16,16 @@ class KanbanBoard extends StatelessWidget {
     super.key,
     this.searchQuery = '',
   });
+  
+  // Memoize filtered tasks to prevent unnecessary recalculations
+  List<TaskEntity> _filterTasks(List<TaskEntity> tasks, String query) {
+    if (query.isEmpty) return tasks;
+    return tasks.where((task) {
+      final content = task.task.content.toLowerCase();
+      final description = task.task.description?.toLowerCase() ?? '';
+      return content.contains(query) || description.contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,16 +64,8 @@ class KanbanBoard extends StatelessWidget {
         }
 
         if (state is TaskLoaded) {
-          // final l10n = AppLocalizations.of(context)!;
           // Filter tasks by search query if provided
-          final filteredTasks = searchQuery.isEmpty
-              ? state.tasks
-              : state.tasks.where((task) {
-                  final content = task.task.content.toLowerCase();
-                  final description = task.task.description?.toLowerCase() ?? '';
-                  return content.contains(searchQuery) || 
-                         description.contains(searchQuery);
-                }).toList();
+          final filteredTasks = _filterTasks(state.tasks, searchQuery);
           
           final todoTasks = filteredTasks.where((t) => t.isTodo).toList();
           final inProgressTasks = filteredTasks.where((t) => t.isInProgress).toList();
@@ -78,26 +81,32 @@ class KanbanBoard extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
-                    child: KanbanColumn(
-                      title: 'To Do',
-                      tasks: todoTasks,
-                      color: AppTheme.todoColor,
+                    child: RepaintBoundary(
+                      child: KanbanColumn(
+                        title: 'To Do',
+                        tasks: todoTasks,
+                        color: AppTheme.todoColor,
+                      ),
                     ),
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
-                    child: KanbanColumn(
-                      title: 'In Progress',
-                      tasks: inProgressTasks,
-                      color: AppTheme.inProgressColor,
+                    child: RepaintBoundary(
+                      child: KanbanColumn(
+                        title: 'In Progress',
+                        tasks: inProgressTasks,
+                        color: AppTheme.inProgressColor,
+                      ),
                     ),
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
-                    child: KanbanColumn(
-                      title: 'Done',
-                      tasks: doneTasks,
-                      color: AppTheme.doneColor,
+                    child: RepaintBoundary(
+                      child: KanbanColumn(
+                        title: 'Done',
+                        tasks: doneTasks,
+                        color: AppTheme.doneColor,
+                      ),
                     ),
                   ),
                 ],

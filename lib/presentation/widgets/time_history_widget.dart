@@ -83,7 +83,9 @@ class TimeHistoryWidget extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(height: AppTheme.spacingS),
             itemBuilder: (context, index) {
               final session = historySessions[historySessions.length - 1 - index]; // Reverse to show newest first
-              return _buildHistoryItem(context, session, index + 1);
+              return RepaintBoundary(
+                child: _buildHistoryItem(context, session, index + 1),
+              );
             },
           ),
         ],
