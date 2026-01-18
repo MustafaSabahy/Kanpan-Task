@@ -33,6 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchQuery = '';
 
   @override
+  void didUpdateWidget(HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Force rebuild when isDarkMode changes
+    if (oldWidget.isDarkMode != widget.isDarkMode) {
+      setState(() {});
+    }
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -200,91 +209,97 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showMenuOptions(BuildContext context) {
     // final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 20),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                  color: theme.colorScheme.onSurface,
-                ),
-                title: Text(
-                  widget.isDarkMode ? 'Disable Dark Mode' : 'Enable Dark Mode',
-                  style: theme.textTheme.titleMedium,
-                ),
-                onTap: () {
-                  widget.onDarkModeChanged?.call(!widget.isDarkMode);
-                  Navigator.pop(context);
-                },
-              ),
-              // ListTile(
-              //   leading: Icon(
-              //     Icons.language,
-              //     color: theme.colorScheme.onSurface,
-              //   ),
-              //   title: Text(
-              //     l10n.language,
-              //     style: theme.textTheme.titleMedium,
-              //   ),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     _showLanguageSelector(context);
-              //   },
-              // ),
-              ListTile(
-                leading: Icon(
-                  Icons.delete_outline,
-                  color: theme.colorScheme.error,
-                ),
-                title: Text(
-                  'Clear All Tasks',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.error,
-                      ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showClearAllConfirmation(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.filter_list,
-                  color: theme.colorScheme.onSurface,
-                ),
-                title: Text(
-                  'Clear Tasks from Column',
-                  style: theme.textTheme.titleMedium,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showClearColumnDialog(context);
-                },
-              ),
-              const SizedBox(height: 20),
-            ],
+      builder: (context) {
+        // Use Theme.of(context) to get current theme state dynamically
+        final theme = Theme.of(context);
+        final isDarkMode = theme.brightness == Brightness.dark;
+        
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
-        ),
-      ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 20),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.outline.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  title: Text(
+                    isDarkMode ? 'Disable Dark Mode' : 'Enable Dark Mode',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Toggle dark mode - pass the new value (opposite of current)
+                    widget.onDarkModeChanged?.call(!isDarkMode);
+                  },
+                ),
+                // ListTile(
+                //   leading: Icon(
+                //     Icons.language,
+                //     color: theme.colorScheme.onSurface,
+                //   ),
+                //   title: Text(
+                //     l10n.language,
+                //     style: theme.textTheme.titleMedium,
+                //   ),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     _showLanguageSelector(context);
+                //   },
+                // ),
+                ListTile(
+                  leading: Icon(
+                    Icons.delete_outline,
+                    color: theme.colorScheme.error,
+                  ),
+                  title: Text(
+                    'Clear All Tasks',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showClearAllConfirmation(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.filter_list,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  title: Text(
+                    'Clear Tasks from Column',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showClearColumnDialog(context);
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

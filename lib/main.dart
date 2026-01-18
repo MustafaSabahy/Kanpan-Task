@@ -39,9 +39,11 @@ class _TaskTrackerAppState extends State<TaskTrackerApp> {
   bool _isDarkMode = false;
 
   void toggleDarkMode(bool value) {
-    setState(() {
-      _isDarkMode = value;
-    });
+    if (_isDarkMode != value) {
+      setState(() {
+        _isDarkMode = value;
+      });
+    }
   }
 
   @override
@@ -72,10 +74,13 @@ class _TaskTrackerAppState extends State<TaskTrackerApp> {
       //     child: child!,
       //   );
       // },
-      home: SplashScreen(
-        child: HomeScreen(
-          onDarkModeChanged: toggleDarkMode,
-          isDarkMode: _isDarkMode,
+      home: Builder(
+        builder: (context) => SplashScreen(
+          child: HomeScreen(
+            key: ValueKey(_isDarkMode), // Force rebuild when dark mode changes
+            onDarkModeChanged: toggleDarkMode,
+            isDarkMode: _isDarkMode,
+          ),
         ),
       ),
     );
